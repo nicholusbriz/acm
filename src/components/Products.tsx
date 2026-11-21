@@ -150,11 +150,7 @@ export default function Products({ selectedCategory = null, onSelectCategory }: 
         )}
 
         {filteredProducts.length > 0 && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '10px',
-          }}>
+          <div className="productGrid productGrid-2col">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

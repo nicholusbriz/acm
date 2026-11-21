@@ -40,7 +40,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
           display: 'inline-block',
           cursor: 'pointer',
         }}>
-          ← Back to Products
+          ← Back to Home
         </span>
       </Link>
 
@@ -238,7 +238,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
 
       <div style={{ marginTop: '48px', textAlign: 'center' }}>
         <Link
-          href="/products"
+          href="/"
           style={{
             display: 'inline-block',
             padding: '12px 32px',
@@ -261,7 +261,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
             e.currentTarget.style.color = colors.emerald;
           }}
         >
-          ← Back to Products
+          ← Back to Home
         </Link>
       </div>
     </div>

@@ -160,23 +160,24 @@ export default function ProductCard({ product }: ProductCardProps) {
             aria-label="Decrease quantity"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             style={{
-              width: '26px',
-              height: '28px',
+              width: '20px',
+              height: '24px',
               border: 'none',
               background: 'transparent',
               color: colors.emerald,
-              fontSize: '16px',
+              fontSize: '14px',
               fontWeight: 700,
               cursor: 'pointer',
               lineHeight: 1,
+              padding: 0,
             }}
           >
             −
           </button>
           <span style={{
-            minWidth: '24px',
+            minWidth: '16px',
             textAlign: 'center',
-            fontSize: '13px',
+            fontSize: '11px',
             fontWeight: 700,
             color: colors.black,
             fontFamily: 'var(--font-inter), sans-serif',
@@ -188,15 +189,16 @@ export default function ProductCard({ product }: ProductCardProps) {
             aria-label="Increase quantity"
             onClick={() => setQuantity((q) => Math.min(99, q + 1))}
             style={{
-              width: '26px',
-              height: '28px',
+              width: '20px',
+              height: '24px',
               border: 'none',
               background: 'transparent',
               color: colors.emerald,
-              fontSize: '16px',
+              fontSize: '14px',
               fontWeight: 700,
               cursor: 'pointer',
               lineHeight: 1,
+              padding: 0,
             }}
           >
             +
@@ -211,11 +213,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           }}
           style={{
             flex: 1,
-            padding: '8px 10px',
+            minWidth: 0,
+            padding: '7px 2px',
             border: 'none',
             background: colors.gold,
             color: colors.black,
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 700,
             fontFamily: 'var(--font-inter), sans-serif',
             cursor: 'pointer',
