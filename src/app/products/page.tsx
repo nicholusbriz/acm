@@ -34,7 +34,7 @@ export default function ProductsPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: '40px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ padding: '40px 16px', width: '100%' }}>
         <p style={{ fontSize: '16px', color: colors.black, fontFamily: 'var(--font-inter), sans-serif' }}>
           Loading products...
         </p>
@@ -43,7 +43,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <div style={{ padding: '40px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '40px 16px', width: '100%' }}>
       <h1 style={{
         fontSize: '36px',
         fontWeight: 700,

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import ProductCard, { type Product } from './ProductCard';
+import ProductScrollRow from './ProductScrollRow';
+import { getSearchQuery } from '@/lib/search';
 import type { Category } from './Categories';
 
 const colors = {
@@ -14,6 +16,7 @@ const colors = {
 
 interface ProductsProps {
   selectedCategory?: string | null;
+  onSelectCategory?: (categorySlug: string | null) => void;
 }
 
 interface ProductRow {
@@ -22,10 +25,22 @@ interface ProductRow {
   products: Product[];
 }
 
-export default function Products({ selectedCategory = null }: ProductsProps) {
+export default function Products({ selectedCategory = null, onSelectCategory }: ProductsProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const updateSearch = () => setSearchQuery(getSearchQuery());
+    updateSearch();
+    window.addEventListener('search-updated', updateSearch);
+    window.addEventListener('storage', updateSearch);
+    return () => {
+      window.removeEventListener('search-updated', updateSearch);
+      window.removeEventListener('storage', updateSearch);
+    };
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -91,7 +106,7 @@ export default function Products({ selectedCategory = null }: ProductsProps) {
 
   if (loading) {
     return (
-      <div style={{ padding: '12px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ padding: '12px 16px', width: '100%' }}>
         <p style={{ fontSize: '16px', color: colors.black, fontFamily: 'var(--font-inter), sans-serif' }}>
           Loading products...
         </p>
@@ -99,13 +114,23 @@ export default function Products({ selectedCategory = null }: ProductsProps) {
     );
   }
 
-  const filteredProducts = selectedCategory
-    ? products.filter((product) => product.category?.slug === selectedCategory)
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const isSearching = normalizedQuery.length > 0;
+  const queryFiltered = isSearching
+    ? products.filter((product) =>
+        [product.name, product.description, product.category?.name].some((field) =>
+          field?.toLowerCase().includes(normalizedQuery)
+        )
+      )
     : products;
 
-  if (selectedCategory) {
+  const filteredProducts = selectedCategory
+    ? queryFiltered.filter((product) => product.category?.slug === selectedCategory)
+    : queryFiltered;
+
+  if (selectedCategory || isSearching) {
     return (
-      <div style={{ padding: '12px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ padding: '12px 16px', width: '100%' }}>
         {filteredProducts.length === 0 && (
           <div style={{
             textAlign: 'center',
@@ -119,7 +144,7 @@ export default function Products({ selectedCategory = null }: ProductsProps) {
               color: colors.black,
               fontFamily: 'var(--font-inter), sans-serif',
             }}>
-              No products found in this category.
+              {isSearching ? `No products found for "${searchQuery.trim()}".` : 'No products found in this category.'}
             </p>
           </div>
         )}
@@ -127,7 +152,7 @@ export default function Products({ selectedCategory = null }: ProductsProps) {
         {filteredProducts.length > 0 && (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
             gap: '10px',
           }}>
             {filteredProducts.map((product) => (
@@ -140,7 +165,7 @@ export default function Products({ selectedCategory = null }: ProductsProps) {
   }
 
   return (
-    <div style={{ padding: '12px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '12px 16px', width: '100%' }}>
       {visibleRows.length === 0 && (
         <div style={{
           textAlign: 'center',
@@ -160,48 +185,12 @@ export default function Products({ selectedCategory = null }: ProductsProps) {
       )}
 
       {visibleRows.map((row) => (
-        <section key={row.slug} style={{ marginBottom: '20px' }}>
-          <h3 style={{
-            fontSize: '20px',
-            fontWeight: 700,
-            color: colors.emerald,
-            fontFamily: 'var(--font-poppins), sans-serif',
-            marginBottom: '12px',
-          }}>
-            {row.name}
-          </h3>
-
-          {row.products.length > 0 ? (
-            <div
-              className="hide-scrollbar"
-              style={{
-                display: 'flex',
-                flexWrap: 'nowrap',
-                gap: '10px',
-                overflowX: 'auto',
-                paddingBottom: '8px',
-              }}
-            >
-              {row.products.map((product) => (
-                <div
-                  key={product.id}
-                  style={{ flex: '0 0 180px', display: 'flex' }}
-                >
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p style={{
-              fontSize: '14px',
-              color: colors.black,
-              fontFamily: 'var(--font-inter), sans-serif',
-              opacity: 0.7,
-            }}>
-              No products in this category yet.
-            </p>
-          )}
-        </section>
+        <ProductScrollRow
+          key={row.slug}
+          title={row.name}
+          products={row.products}
+          onViewAll={onSelectCategory ? () => onSelectCategory(row.slug) : undefined}
+        />
       ))}
     </div>
   );

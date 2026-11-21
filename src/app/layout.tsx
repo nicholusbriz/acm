@@ -3,7 +3,7 @@ import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
-import FloatingCart from "@/components/FloatingCart";
+import Footer from "@/components/Footer";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <TopBar />
         <Header />
         {children}
-        <FloatingCart />
+        <Footer />
       </body>
     </html>
   );

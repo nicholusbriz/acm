@@ -8,15 +8,12 @@ interface ProductGridProps {
 }
 
 export default function ProductGrid({ products, columns }: ProductGridProps) {
-  const gridColumns = columns ? `repeat(${columns}, 1fr)` : 'repeat(auto-fill, minmax(180px, 1fr))';
+  const className = columns
+    ? `productGrid productGrid-${columns}col`
+    : 'productGrid';
 
   return (
-    <div style={{
-      display: 'grid',
-      width: '100%',
-      gridTemplateColumns: gridColumns,
-      gap: '10px',
-    }}>
+    <div className={className}>
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

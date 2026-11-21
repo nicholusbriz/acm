@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
+import { getCartCount } from '@/lib/cart';
+import { setSearchQuery as updateSearchQuery } from '@/lib/search';
 import styles from './Header.module.css';
 
 export default function Header() {
@@ -11,7 +13,9 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [cartCount, setCartCount] = useState(0);
   const accountRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -25,19 +29,38 @@ export default function Header() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (accountRef.current && !accountRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (accountRef.current && !accountRef.current.contains(target)) {
         setIsAccountOpen(false);
+      }
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(target) &&
+        !(target as HTMLElement).closest('[data-menu-button]')
+      ) {
+        setIsMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const updateCartCount = () => setCartCount(getCartCount());
+    updateCartCount();
+    window.addEventListener('cart-updated', updateCartCount);
+    window.addEventListener('storage', updateCartCount);
+    return () => {
+      window.removeEventListener('cart-updated', updateCartCount);
+      window.removeEventListener('storage', updateCartCount);
+    };
+  }, []);
+
   return (
-    <>
+    <div className={styles.stickyHeader}>
       <header className={styles.header}>
         <div className={styles.headerContainer}>
-          <Link href="/" className={styles.logoContainer}>
+          <Link href="/" className={styles.logoContainer} onClick={() => window.scrollTo({ top: 0 })}>
             <Image
               src="/Africa-logo.jpg"
               alt="Africa Conglomerate Logo"
@@ -58,7 +81,10 @@ export default function Header() {
                   type="text"
                   placeholder="Search products, categories..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    updateSearchQuery(e.target.value);
+                  }}
                   className={styles.searchInput}
                 />
                 <div className={styles.searchLabelContainer}>
@@ -73,6 +99,28 @@ export default function Header() {
           )}
 
           <div className={styles.rightSection}>
+
+            {/* Menu */}
+            {!isMobile && (
+              <button
+                className={styles.iconButton}
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Menu"
+                data-menu-button
+              >
+                <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  {isMenuOpen ? (
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  ) : (
+                    <>
+                      <line x1="3" y1="12" x2="21" y2="12" />
+                      <line x1="3" y1="6" x2="21" y2="6" />
+                      <line x1="3" y1="18" x2="21" y2="18" />
+                    </>
+                  )}
+                </svg>
+              </button>
+            )}
 
             {/* User Account */}
             <div ref={accountRef} style={{ position: 'relative' }}>
@@ -96,14 +144,16 @@ export default function Header() {
               {/* Account Dropdown */}
               <div className={`${styles.accountDropdown} ${isAccountOpen ? styles.open : ''}`}>
                 <Link
-                  href="/login"
+                  href="/"
                   className={styles.dropdownItem}
+                  onClick={() => window.scrollTo({ top: 0 })}
                 >
                   Login
                 </Link>
                 <Link
-                  href="/register"
+                  href="/"
                   className={styles.dropdownItem}
+                  onClick={() => window.scrollTo({ top: 0 })}
                 >
                   Register
                 </Link>
@@ -117,7 +167,9 @@ export default function Header() {
                 <circle cx="20" cy="21" r="1" />
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
               </svg>
-              <span className={styles.cartCount}>0</span>
+              {cartCount > 0 && (
+                <span className={styles.cartCount}>{cartCount}</span>
+              )}
             </button>
           </div>
         </div>
@@ -130,7 +182,10 @@ export default function Header() {
               type="text"
               placeholder="Search products, categories..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                updateSearchQuery(e.target.value);
+              }}
               className={styles.searchInput}
             />
             <div className={styles.searchLabelContainer}>
@@ -145,6 +200,7 @@ export default function Header() {
             className={styles.iconButton}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Menu"
+                data-menu-button
           >
             <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               {isMenuOpen ? (
@@ -161,13 +217,28 @@ export default function Header() {
         </div>
       )}
 
-      {isMobile && (
-        <div className={`${styles.mobileMenu} ${isMenuOpen ? styles.open : ''}`}>
-          <p style={{ fontSize: '14px', color: '#171A18', fontFamily: 'var(--font-inter), sans-serif' }}>
-            Menu items will go here
-          </p>
+      {isMenuOpen && (
+        <div ref={menuRef} className={`${styles.mobileMenu} ${styles.open}`}>
+          {[
+            { label: 'About', href: '/' },
+            { label: 'Affiliates', href: '/' },
+            { label: 'Support', href: '/' },
+            { label: 'Referrals', href: '/' },
+          ].map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              onClick={() => {
+                setIsMenuOpen(false);
+                window.scrollTo({ top: 0 });
+              }}
+              className={styles.menuLink}
+            >
+              {item.label}
+            </Link>
+          ))}
         </div>
       )}
-    </>
+    </div>
   );
 }

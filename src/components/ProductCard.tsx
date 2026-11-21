@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { addToCart } from '@/lib/cart';
 
 const colors = {
   emerald: '#123C32',
@@ -29,16 +31,11 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const [quantity, setQuantity] = useState(1);
+
   return (
-    <Link
-      href={`/products/${product.slug}`}
+    <div
       style={{
-        display: 'block',
-        height: '100%',
-        textDecoration: 'none',
-      }}
-    >
-      <div style={{
         background: colors.ivory,
         borderRadius: '8px',
         overflow: 'hidden',
@@ -46,6 +43,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         transition: 'all 0.3s ease',
         cursor: 'pointer',
         height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)';
@@ -55,6 +54,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.boxShadow = 'none';
       }}
+    >
+      <Link
+        href={`/products/${product.slug}`}
+        style={{
+          display: 'block',
+          flex: 1,
+          textDecoration: 'none',
+        }}
       >
         <div style={{
           width: '100%',
@@ -132,7 +139,101 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
         </div>
+      </Link>
+
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '8px 10px',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          borderRadius: '6px',
+          background: colors.ivory,
+          overflow: 'hidden',
+          flexShrink: 0,
+        }}>
+          <button
+            type="button"
+            aria-label="Decrease quantity"
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            style={{
+              width: '26px',
+              height: '28px',
+              border: 'none',
+              background: 'transparent',
+              color: colors.emerald,
+              fontSize: '16px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              lineHeight: 1,
+            }}
+          >
+            −
+          </button>
+          <span style={{
+            minWidth: '24px',
+            textAlign: 'center',
+            fontSize: '13px',
+            fontWeight: 700,
+            color: colors.black,
+            fontFamily: 'var(--font-inter), sans-serif',
+          }}>
+            {quantity}
+          </span>
+          <button
+            type="button"
+            aria-label="Increase quantity"
+            onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+            style={{
+              width: '26px',
+              height: '28px',
+              border: 'none',
+              background: 'transparent',
+              color: colors.emerald,
+              fontSize: '16px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              lineHeight: 1,
+            }}
+          >
+            +
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            addToCart(product, quantity);
+            setQuantity(1);
+          }}
+          style={{
+            flex: 1,
+            padding: '8px 10px',
+            border: 'none',
+            background: colors.gold,
+            color: colors.black,
+            fontSize: '12px',
+            fontWeight: 700,
+            fontFamily: 'var(--font-inter), sans-serif',
+            cursor: 'pointer',
+            transition: 'background 0.2s ease',
+            whiteSpace: 'nowrap',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = colors.emerald;
+            e.currentTarget.style.color = colors.ivory;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = colors.gold;
+            e.currentTarget.style.color = colors.black;
+          }}
+        >
+          Add to Cart
+        </button>
       </div>
-    </Link>
+    </div>
   );
 }

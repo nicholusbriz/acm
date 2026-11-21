@@ -70,6 +70,11 @@ export default function Categories({ selectedCategory, onSelectCategory }: Categ
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const active = rowRef.current?.querySelector('[aria-pressed="true"]');
+    active?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }, [selectedCategory, visibleCount]);
+
   const measureVisibleCount = useCallback(() => {
     const row = rowRef.current;
     const measure = measureRef.current;
@@ -146,7 +151,7 @@ export default function Categories({ selectedCategory, onSelectCategory }: Categ
 
   if (loading) {
     return (
-      <section style={{ padding: '12px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+      <section style={{ padding: '12px 16px', width: '100%' }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontSize: '16px', color: colors.black, fontFamily: 'var(--font-inter), sans-serif' }}>
             Loading categories...
@@ -157,7 +162,7 @@ export default function Categories({ selectedCategory, onSelectCategory }: Categ
   }
 
   return (
-    <section style={{ padding: '12px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
+    <section style={{ padding: '12px 16px', width: '100%', position: 'relative' }}>
       <div ref={rowRef} style={{
         display: 'flex',
         flexWrap: 'nowrap',
@@ -200,9 +205,9 @@ export default function Categories({ selectedCategory, onSelectCategory }: Categ
               onClick={() => selectCategory(category.slug)}
               style={{
                 ...pillBaseStyle,
-                background: isActive ? colors.emerald : colors.ivory,
-                color: isActive ? colors.ivory : colors.emerald,
-                borderColor: isActive ? colors.emerald : colors.sand,
+                background: isActive ? colors.emerald : colors.sand,
+                color: isActive ? colors.ivory : colors.black,
+                borderColor: isActive ? colors.emerald : 'transparent',
                 fontWeight: isActive ? 600 : 500,
               }}
               onMouseEnter={(e) => {
@@ -217,9 +222,9 @@ export default function Categories({ selectedCategory, onSelectCategory }: Categ
                 }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = isActive ? colors.emerald : colors.ivory;
-                e.currentTarget.style.color = isActive ? colors.ivory : colors.emerald;
-                e.currentTarget.style.borderColor = isActive ? colors.emerald : colors.sand;
+                e.currentTarget.style.background = isActive ? colors.emerald : colors.sand;
+                e.currentTarget.style.color = isActive ? colors.ivory : colors.black;
+                e.currentTarget.style.borderColor = isActive ? colors.emerald : 'transparent';
               }}
             >
               {category.name}
@@ -236,9 +241,9 @@ export default function Categories({ selectedCategory, onSelectCategory }: Categ
               onClick={() => setIsMoreOpen((open) => !open)}
               style={{
                 ...pillBaseStyle,
-                background: isMoreOpen ? colors.emerald : colors.ivory,
-                color: isMoreOpen ? colors.ivory : colors.emerald,
-                borderColor: isMoreOpen ? colors.emerald : colors.sand,
+                background: isMoreOpen ? colors.emerald : colors.sand,
+                color: isMoreOpen ? colors.ivory : colors.black,
+                borderColor: isMoreOpen ? colors.emerald : 'transparent',
                 gap: '4px',
               }}
               onMouseEnter={(e) => {
@@ -250,9 +255,9 @@ export default function Categories({ selectedCategory, onSelectCategory }: Categ
               }}
               onMouseLeave={(e) => {
                 if (!isMoreOpen) {
-                  e.currentTarget.style.background = colors.ivory;
-                  e.currentTarget.style.color = colors.emerald;
-                  e.currentTarget.style.borderColor = colors.sand;
+                  e.currentTarget.style.background = colors.sand;
+                  e.currentTarget.style.color = colors.black;
+                  e.currentTarget.style.borderColor = 'transparent';
                 }
               }}
             >

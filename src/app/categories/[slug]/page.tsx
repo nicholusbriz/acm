@@ -44,7 +44,7 @@ function CategoryPageContent() {
 
   if (loading) {
     return (
-      <div style={{ padding: '40px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ padding: '40px 16px', width: '100%' }}>
         <p style={{ fontSize: '16px', color: colors.black, fontFamily: 'var(--font-inter), sans-serif' }}>
           Loading products...
         </p>
@@ -53,7 +53,7 @@ function CategoryPageContent() {
   }
 
   return (
-    <div style={{ padding: '40px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '40px 16px', width: '100%' }}>
       <Link href="/" style={{ textDecoration: 'none' }}>
         <span style={{
           fontSize: '14px',

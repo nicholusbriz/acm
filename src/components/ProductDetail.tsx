@@ -29,7 +29,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
   const discountAmount = hasDiscount ? product.compare_at_price! - product.price : 0;
 
   return (
-    <div style={{ padding: '40px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '40px 16px', width: '100%' }}>
       <Link href="/" style={{ textDecoration: 'none' }}>
         <span style={{
           fontSize: '14px',
@@ -216,7 +216,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
         Continue browsing our collection
       </p>
 
-      <ProductGrid products={relatedProducts} />
+      <ProductGrid products={relatedProducts} columns={2} />
 
       {relatedProducts.length === 0 && (
         <div style={{
@@ -235,6 +235,35 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
           </p>
         </div>
       )}
+
+      <div style={{ marginTop: '48px', textAlign: 'center' }}>
+        <Link
+          href="/products"
+          style={{
+            display: 'inline-block',
+            padding: '12px 32px',
+            borderRadius: '999px',
+            border: `1px solid ${colors.emerald}`,
+            background: colors.ivory,
+            color: colors.emerald,
+            fontSize: '14px',
+            fontWeight: 600,
+            fontFamily: 'var(--font-inter), sans-serif',
+            textDecoration: 'none',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = colors.emerald;
+            e.currentTarget.style.color = colors.ivory;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = colors.ivory;
+            e.currentTarget.style.color = colors.emerald;
+          }}
+        >
+          ← Back to Products
+        </Link>
+      </div>
     </div>
   );
 }
