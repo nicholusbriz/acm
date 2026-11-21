@@ -39,6 +39,9 @@ async function ProductDetailLoader({
   const relatedProducts = categorySlug
     ? products.filter((relatedProduct) => relatedProduct.category?.slug === categorySlug && relatedProduct.id !== product.id)
     : products.filter((relatedProduct) => relatedProduct.id !== product.id);
+  const otherProducts = products.filter(
+    (otherProduct) => otherProduct.category?.slug !== categorySlug && otherProduct.id !== product.id
+  );
 
-  return <ProductDetail product={product} relatedProducts={relatedProducts} />;
+  return <ProductDetail product={product} relatedProducts={relatedProducts} otherProducts={otherProducts} />;
 }

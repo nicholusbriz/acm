@@ -27,6 +27,8 @@
   height: 420px;
   background: #FAF0E7;
   border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -70,6 +72,10 @@
 
 .info {
   flex: 1 1 360px;
+  background: #FAF0E7;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
 
 .category {
@@ -179,6 +185,20 @@
   font-size: 18px;
   color: #171A18;
   font-family: var(--font-inter), sans-serif;
+}
+
+.cartRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #FAF0E7;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.otherSection {
+  margin-top: 40px;
 }
 
 .backWrap {

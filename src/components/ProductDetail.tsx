@@ -3,8 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import ProductGrid from './ProductGrid';
+import ProductScrollRow from './ProductScrollRow';
 import type { Product } from './ProductCard';
 import { colors } from '@/lib/colors';
+import { addToCart } from '@/lib/cart';
+import cardStyles from './ProductCard.module.css';
 import styles from './ProductDetail.module.css';
 
 interface ProductDetailProps {
@@ -13,10 +16,12 @@ interface ProductDetailProps {
     stock_quantity?: number;
   };
   relatedProducts: Product[];
+  otherProducts?: Product[];
 }
 
-export default function ProductDetail({ product, relatedProducts }: ProductDetailProps) {
+export default function ProductDetail({ product, relatedProducts, otherProducts = [] }: ProductDetailProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const images = product.images ?? [];
   const selectedImage = images[selectedImageIndex] ?? images[0];
   const hasDiscount = product.compare_at_price && product.compare_at_price > product.price;
@@ -97,10 +102,44 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
               </p>
             )}
           </div>
+
+          <div className={`${styles.cartRow} ${cardStyles.actions}`}>
+            <div className={cardStyles.stepper}>
+              <button
+                type="button"
+                aria-label="Decrease quantity"
+                className={cardStyles.stepperButton}
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              >
+                −
+              </button>
+              <span className={cardStyles.stepperValue}>{quantity}</span>
+              <button
+                type="button"
+                aria-label="Increase quantity"
+                className={cardStyles.stepperButton}
+                onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+              >
+                +
+              </button>
+            </div>
+            <button
+              type="button"
+              className={cardStyles.addButton}
+              onClick={() => {
+                addToCart(product, quantity);
+                setQuantity(1);
+              }}
+            >
+              Add to Cart
+            </button>
+          </div>
         </div>
       </div>
 
-      <h2 className={styles.sectionTitle}>More Products</h2>
+      <h2 className={styles.sectionTitle}>
+        {product.category?.name ? `More Products from ${product.category.name}` : 'More Products'}
+      </h2>
       <p className={styles.sectionSubtitle}>Continue browsing our collection</p>
 
       <ProductGrid products={relatedProducts} columns={2} />
@@ -108,6 +147,12 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
       {relatedProducts.length === 0 && (
         <div className={styles.emptyState}>
           <p>No other products available right now.</p>
+        </div>
+      )}
+
+      {otherProducts.length > 0 && (
+        <div className={styles.otherSection}>
+          <ProductScrollRow title="More to Explore" products={otherProducts} />
         </div>
       )}
 

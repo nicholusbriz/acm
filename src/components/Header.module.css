@@ -404,6 +404,12 @@
   gap: 8px;
 }
 
+.mobileSearchContainer .searchWrapper {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+
 @keyframes menuSlideIn {
   from {
     transform: translateX(24px);

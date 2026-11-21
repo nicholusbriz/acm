@@ -123,6 +123,54 @@
   .controlsRow > .moreWrap {
     display: none;
   }
+
+  .dropdown {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(300px, 85vw);
+    max-width: none;
+    min-width: 0;
+    border-radius: 0;
+    border: none;
+    border-left: 1px solid #D8C7A5;
+    box-shadow: -8px 0 30px rgba(0, 0, 0, 0.25);
+    padding: 16px;
+    overflow-y: auto;
+    background: #FAF0E7;
+    animation: filterSlideIn 0.25s ease;
+    z-index: 3000;
+  }
+}
+
+.drawer {
+  position: fixed;
+  top: 170px;
+  right: 12px;
+  bottom: auto;
+  width: min(300px, calc(100vw - 24px));
+  max-height: 70vh;
+  background: #FAF0E7;
+  border: 1px solid #D8C7A5;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  padding: 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  animation: filterSlideIn 0.25s ease;
+  z-index: 3000;
+}
+
+@keyframes filterSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .dropdown {

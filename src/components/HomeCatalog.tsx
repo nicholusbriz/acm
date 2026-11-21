@@ -22,7 +22,7 @@ export default function HomeCatalog() {
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
       />
-      <PromoBanner />
+      {selectedCategory === null && <PromoBanner />}
       <Products selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
     </>
   );
