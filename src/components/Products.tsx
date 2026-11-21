@@ -146,6 +146,10 @@ export default function Products({ selectedCategory = null, onSelectCategory }: 
     ? queryFiltered.filter((product) => product.category?.slug === selectedCategory)
     : queryFiltered;
 
+  const otherCategoryProducts = selectedCategory
+    ? filteredCatalog.filter((product) => product.category?.slug !== selectedCategory)
+    : [];
+
   if (selectedCategory || isSearching) {
     return (
       <div className="section-pad">
@@ -162,6 +166,12 @@ export default function Products({ selectedCategory = null, onSelectCategory }: 
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
+          </div>
+        )}
+
+        {selectedCategory && otherCategoryProducts.length > 0 && (
+          <div className={styles.otherRow}>
+            <ProductScrollRow title="Discover from other categories" products={otherCategoryProducts} />
           </div>
         )}
       </div>

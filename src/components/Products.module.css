@@ -4,6 +4,10 @@
   font-family: var(--font-inter), sans-serif;
 }
 
+.otherRow {
+  margin-top: 32px;
+}
+
 .emptyState {
   text-align: center;
   padding: 60px 20px;
