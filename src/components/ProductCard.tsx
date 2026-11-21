@@ -49,12 +49,17 @@ export default function ProductCard({ product }: ProductCardProps) {
             </>
           )}
         </div>
+      </Link>
 
+      <div className={styles.infoCol}>
         <div className={styles.info}>
           {product.category && (
             <p className={styles.category}>{product.category.name}</p>
           )}
           <h3 className={styles.name}>{product.name}</h3>
+          {product.description && (
+            <p className={styles.description}>{product.description}</p>
+          )}
           <div className={styles.priceRow}>
             <span className={styles.price}>${product.price.toFixed(2)}</span>
             {product.compare_at_price && (
@@ -62,39 +67,39 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
         </div>
-      </Link>
 
-      <div className={styles.actions}>
-        <div className={styles.stepper}>
+        <div className={styles.actions}>
+          <div className={styles.stepper}>
+            <button
+              type="button"
+              aria-label="Decrease quantity"
+              className={styles.stepperButton}
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            >
+              −
+            </button>
+            <span className={styles.stepperValue}>{quantity}</span>
+            <button
+              type="button"
+              aria-label="Increase quantity"
+              className={styles.stepperButton}
+              onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+            >
+              +
+            </button>
+          </div>
+
           <button
             type="button"
-            aria-label="Decrease quantity"
-            className={styles.stepperButton}
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            className={styles.addButton}
+            onClick={() => {
+              addToCart(product, quantity);
+              setQuantity(1);
+            }}
           >
-            −
-          </button>
-          <span className={styles.stepperValue}>{quantity}</span>
-          <button
-            type="button"
-            aria-label="Increase quantity"
-            className={styles.stepperButton}
-            onClick={() => setQuantity((q) => Math.min(99, q + 1))}
-          >
-            +
+            Add to Cart
           </button>
         </div>
-
-        <button
-          type="button"
-          className={styles.addButton}
-          onClick={() => {
-            addToCart(product, quantity);
-            setQuantity(1);
-          }}
-        >
-          Add to Cart
-        </button>
       </div>
     </div>
   );

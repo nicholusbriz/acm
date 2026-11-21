@@ -1,0 +1,327 @@
+.banner {
+  position: relative;
+  width: calc(100% - 32px);
+  max-width: 1280px;
+  margin: 12px auto;
+  min-height: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+}
+
+.left {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+}
+
+.right {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #C6A15B;
+  overflow: hidden;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(90deg, rgba(13, 13, 13, 0.88) 0%, rgba(13, 13, 13, 0.65) 45%, rgba(13, 13, 13, 0.35) 100%);
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+  padding: 28px 24px 28px 48px;
+}
+
+.tag {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--font-inter), sans-serif;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tagText {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+
+.stockBadge {
+  background: #C6A15B;
+  color: #171A18;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.headline {
+  font-size: clamp(34px, 5vw, 58px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -1px;
+  color: #fff;
+  font-family: var(--font-poppins), sans-serif;
+  margin: 0 0 16px;
+}
+
+.accentWord {
+  color: #C6A15B;
+}
+
+.subtext {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--font-inter), sans-serif;
+  margin: 0 0 24px;
+}
+
+.note {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-inter), sans-serif;
+  margin: 0;
+}
+
+.productPanel {
+  position: absolute;
+  right: 48px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  max-width: 280px;
+  text-align: right;
+}
+
+.productCategory {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #C6A15B;
+  font-family: var(--font-inter), sans-serif;
+  margin: 0 0 4px;
+}
+
+.dealLink {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--font-inter), sans-serif;
+  text-decoration: none;
+  border-bottom: 1px solid #C6A15B;
+  padding-bottom: 2px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.dealLink:hover {
+  color: #C6A15B;
+  border-color: #C6A15B;
+}
+
+.productName {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--font-poppins), sans-serif;
+  margin: 0 0 4px;
+}
+
+.productPrice {
+  font-size: 22px;
+  font-weight: 800;
+  color: #C6A15B;
+  font-family: var(--font-inter), sans-serif;
+  margin: 0;
+}
+
+.sizeBadge {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  background: #171A18;
+  color: #C6A15B;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-inter), sans-serif;
+  padding: 6px 14px;
+  border-radius: 999px;
+  z-index: 3;
+}
+
+.navArrow {
+  position: absolute;
+  bottom: 16px;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.navArrow:hover {
+  background: #C6A15B;
+  color: #171A18;
+}
+
+.navLeft {
+  left: calc(50% - 44px);
+}
+
+.navRight {
+  left: calc(50% + 8px);
+}
+
+.dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dotActive {
+  background: #C6A15B;
+  transform: scale(1.3);
+}
+
+@media (max-width: 768px) {
+  .banner {
+    min-height: 260px;
+  }
+
+  .content {
+    max-width: 55%;
+    min-width: 0;
+    padding: 16px 8px 16px 16px;
+  }
+
+  .tag {
+    font-size: 10px;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .tagText {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+
+  .stockBadge {
+    font-size: 8px;
+    padding: 3px 8px;
+  }
+
+  .headline {
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .subtext {
+    font-size: 10px;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .productInfo {
+    margin: 10px 0 2px;
+  }
+
+  .productPanel {
+    right: 10px;
+    top: auto;
+    bottom: 48px;
+    transform: none;
+    max-width: 42%;
+    text-align: left;
+  }
+
+  .productCategory {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+
+  .productName {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .productPrice {
+    font-size: 15px;
+  }
+
+  .dealLink {
+    font-size: 11px;
+    margin-top: 6px;
+  }
+
+  .note {
+    font-size: 9px;
+    margin-top: 8px;
+  }
+
+  .sizeBadge {
+    top: 10px;
+    right: 10px;
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+
+  .navArrow {
+    width: 32px;
+    height: 32px;
+    bottom: 12px;
+  }
+
+  .navLeft {
+    left: calc(50% - 40px);
+  }
+
+  .navRight {
+    left: calc(50% + 8px);
+  }
+}

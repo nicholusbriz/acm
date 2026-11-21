@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Categories from './Categories';
 import Products from './Products';
+import PromoBanner from './PromoBanner';
 import { getSelectedCategory } from '@/lib/categoryNav';
 
 export default function HomeCatalog() {
@@ -21,6 +22,7 @@ export default function HomeCatalog() {
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
       />
+      <PromoBanner />
       <Products selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
     </>
   );
