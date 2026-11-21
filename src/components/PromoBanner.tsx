@@ -11,6 +11,7 @@ interface PromoProduct {
   slug?: string;
   price: number;
   images?: string[];
+  description?: string;
   category?: { name: string };
 }
 
@@ -118,6 +119,9 @@ export default function PromoBanner() {
                 <p className={styles.productCategory}>{current.category.name}</p>
               )}
               <p className={styles.productName}>{current.name}</p>
+              {current.description && (
+                <p className={styles.productDesc}>{current.description}</p>
+              )}
               <p className={styles.productPrice}>${current.price.toFixed(2)}</p>
               <Link href={`/products/${current.slug ?? ''}`} className={styles.dealLink}>
                 View Deal →
