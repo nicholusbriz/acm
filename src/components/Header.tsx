@@ -2,12 +2,15 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { getCartCount } from '@/lib/cart';
 import { setSearchQuery as updateSearchQuery } from '@/lib/search';
+import CategoryFilter from './CategoryFilter';
 import styles from './Header.module.css';
 
 export default function Header() {
+  const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -123,7 +126,7 @@ export default function Header() {
             )}
 
             {/* User Account */}
-            <div ref={accountRef} style={{ position: 'relative' }}>
+            <div ref={accountRef} className={styles.accountWrap}>
               <button
                 className={styles.accountButton}
                 onClick={() => setIsAccountOpen(!isAccountOpen)}
@@ -133,7 +136,7 @@ export default function Header() {
                   <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
-                <span style={{ fontSize: '14px', fontWeight: 500, fontFamily: 'var(--font-inter), sans-serif' }}>
+                <span className={styles.accountLabel}>
                   Account
                 </span>
                 <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -196,6 +199,7 @@ export default function Header() {
               <span className={styles.searchLabel}>Search</span>
             </div>
           </div>
+          {pathname === '/' && <CategoryFilter />}
           <button
             className={styles.iconButton}
             onClick={() => setIsMenuOpen(!isMenuOpen)}

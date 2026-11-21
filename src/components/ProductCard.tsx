@@ -3,14 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { addToCart } from '@/lib/cart';
-
-const colors = {
-  emerald: '#123C32',
-  gold: '#C6A15B',
-  ivory: '#FAF0E7',
-  sand: '#D8C7A5',
-  black: '#171A18',
-};
+import { colors } from '@/lib/colors';
+import styles from './ProductCard.module.css';
 
 export interface Product {
   id: string;
@@ -23,6 +17,7 @@ export interface Product {
     name: string;
     slug: string;
   };
+  stock_quantity?: number;
   images: string[];
 }
 
@@ -34,50 +29,14 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [quantity, setQuantity] = useState(1);
 
   return (
-    <div
-      style={{
-        background: colors.ivory,
-        borderRadius: '8px',
-        overflow: 'hidden',
-        border: `1px solid ${colors.sand}`,
-        transition: 'all 0.3s ease',
-        cursor: 'pointer',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-4px)';
-        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = 'none';
-      }}
-    >
-      <Link
-        href={`/products/${product.slug}`}
-        style={{
-          display: 'block',
-          flex: 1,
-          textDecoration: 'none',
-        }}
-      >
-        <div style={{
-          width: '100%',
-          height: '150px',
-          background: `${colors.emerald}08`,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-        }}>
+    <div className={styles.card}>
+      <Link href={`/products/${product.slug}`} className={styles.link}>
+        <div className={styles.imageWrap}>
           {product.images && product.images[0] ? (
             <img
               src={product.images[0]}
               alt={product.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              className={styles.image}
             />
           ) : (
             <>
@@ -86,120 +45,41 @@ export default function ProductCard({ product }: ProductCardProps) {
                 <circle cx="8.5" cy="8.5" r="1.5" />
                 <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
               </svg>
-              <span style={{
-                fontSize: '10px',
-                color: colors.sand,
-                fontFamily: 'var(--font-inter), sans-serif',
-              }}>
-                No Image
-              </span>
+              <span className={styles.noImageText}>No Image</span>
             </>
           )}
         </div>
 
-        <div style={{ padding: '10px' }}>
+        <div className={styles.info}>
           {product.category && (
-            <p style={{
-              fontSize: '11px',
-              color: colors.gold,
-              fontFamily: 'var(--font-inter), sans-serif',
-              fontWeight: 600,
-              marginBottom: '3px',
-            }}>
-              {product.category.name}
-            </p>
+            <p className={styles.category}>{product.category.name}</p>
           )}
-          <h3 style={{
-            fontSize: '13px',
-            fontWeight: 600,
-            color: colors.emerald,
-            fontFamily: 'var(--font-poppins), sans-serif',
-            marginBottom: '4px',
-          }}>
-            {product.name}
-          </h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{
-              fontSize: '15px',
-              fontWeight: 700,
-              color: colors.emerald,
-              fontFamily: 'var(--font-inter), sans-serif',
-            }}>
-              ${product.price.toFixed(2)}
-            </span>
+          <h3 className={styles.name}>{product.name}</h3>
+          <div className={styles.priceRow}>
+            <span className={styles.price}>${product.price.toFixed(2)}</span>
             {product.compare_at_price && (
-              <span style={{
-                fontSize: '12px',
-                color: colors.sand,
-                fontFamily: 'var(--font-inter), sans-serif',
-                textDecoration: 'line-through',
-              }}>
-                ${product.compare_at_price.toFixed(2)}
-              </span>
+              <span className={styles.comparePrice}>${product.compare_at_price.toFixed(2)}</span>
             )}
           </div>
         </div>
       </Link>
 
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '8px 10px',
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          borderRadius: '6px',
-          background: colors.ivory,
-          overflow: 'hidden',
-          flexShrink: 0,
-        }}>
+      <div className={styles.actions}>
+        <div className={styles.stepper}>
           <button
             type="button"
             aria-label="Decrease quantity"
+            className={styles.stepperButton}
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            style={{
-              width: '20px',
-              height: '24px',
-              border: 'none',
-              background: 'transparent',
-              color: colors.emerald,
-              fontSize: '14px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              lineHeight: 1,
-              padding: 0,
-            }}
           >
             −
           </button>
-          <span style={{
-            minWidth: '16px',
-            textAlign: 'center',
-            fontSize: '11px',
-            fontWeight: 700,
-            color: colors.black,
-            fontFamily: 'var(--font-inter), sans-serif',
-          }}>
-            {quantity}
-          </span>
+          <span className={styles.stepperValue}>{quantity}</span>
           <button
             type="button"
             aria-label="Increase quantity"
+            className={styles.stepperButton}
             onClick={() => setQuantity((q) => Math.min(99, q + 1))}
-            style={{
-              width: '20px',
-              height: '24px',
-              border: 'none',
-              background: 'transparent',
-              color: colors.emerald,
-              fontSize: '14px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              lineHeight: 1,
-              padding: 0,
-            }}
           >
             +
           </button>
@@ -207,31 +87,10 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <button
           type="button"
+          className={styles.addButton}
           onClick={() => {
             addToCart(product, quantity);
             setQuantity(1);
-          }}
-          style={{
-            flex: 1,
-            minWidth: 0,
-            padding: '7px 2px',
-            border: 'none',
-            background: colors.gold,
-            color: colors.black,
-            fontSize: '11px',
-            fontWeight: 700,
-            fontFamily: 'var(--font-inter), sans-serif',
-            cursor: 'pointer',
-            transition: 'background 0.2s ease',
-            whiteSpace: 'nowrap',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = colors.emerald;
-            e.currentTarget.style.color = colors.ivory;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = colors.gold;
-            e.currentTarget.style.color = colors.black;
           }}
         >
           Add to Cart

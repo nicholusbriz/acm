@@ -1,14 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-const colors = {
-  emerald: '#123C32',
-  gold: '#C6A15B',
-  ivory: '#FAF0E7',
-  sand: '#D8C7A5',
-  black: '#171A18',
-};
+import { useEffect, useRef, useState } from 'react';
+import { getProductFilters, setProductFilters, type ProductFilters } from '@/lib/filters';
+import styles from './Categories.module.css';
 
 export interface Category {
   id: string;
@@ -25,34 +19,14 @@ interface CategoriesProps {
   onSelectCategory: (categorySlug: string | null) => void;
 }
 
-const GAP = 6;
-const SAFETY_MARGIN = 8;
-
-const pillBaseStyle = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  padding: '6px 12px',
-  borderRadius: '999px',
-  fontSize: '12px',
-  fontFamily: 'var(--font-inter), sans-serif',
-  transition: 'all 0.2s ease',
-  cursor: 'pointer',
-  border: '1px solid transparent',
-  whiteSpace: 'nowrap',
-  flexShrink: 0,
-} as const;
-
 export default function Categories({ selectedCategory, onSelectCategory }: CategoriesProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(0);
-  const rowRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLDivElement>(null);
-  const moreRef = useRef<HTMLDivElement>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [draft, setDraft] = useState<ProductFilters>(getProductFilters());
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const filterRef = useRef<HTMLDivElement>(null);
   const isAllProductsActive = selectedCategory === null;
-  const visibleCategories = categories.slice(0, visibleCount);
-  const hiddenCategories = categories.slice(visibleCount);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -70,314 +44,177 @@ export default function Categories({ selectedCategory, onSelectCategory }: Categ
     fetchCategories();
   }, []);
 
+  function toggleFilter() {
+    setIsFilterOpen((open) => {
+      if (!open) setDraft(getProductFilters());
+      return !open;
+    });
+  }
+
+  function applyFilters() {
+    setProductFilters(draft);
+    setIsFilterOpen(false);
+  }
+
+  function clearFilters() {
+    const cleared = { minPrice: null, maxPrice: null, inStockOnly: false, sortBy: 'default' as const };
+    setDraft(cleared);
+    setProductFilters(cleared);
+    setIsFilterOpen(false);
+  }
+
   useEffect(() => {
-    const active = rowRef.current?.querySelector('[aria-pressed="true"]');
+    const active = scrollRef.current?.querySelector('[aria-pressed="true"]');
     active?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  }, [selectedCategory, visibleCount]);
-
-  const measureVisibleCount = useCallback(() => {
-    const row = rowRef.current;
-    const measure = measureRef.current;
-    if (!row || !measure || categories.length === 0) {
-      setVisibleCount(0);
-      return;
-    }
-
-    const children = Array.from(measure.children) as HTMLElement[];
-    if (children.length < categories.length + 2) {
-      setVisibleCount(0);
-      return;
-    }
-
-    const allWidth = children[0].offsetWidth;
-    const moreWidth = children[children.length - 1].offsetWidth;
-    const categoryWidths = children.slice(1, -1).map((child) => child.offsetWidth);
-    const availableWidth = row.clientWidth - SAFETY_MARGIN;
-
-    const widthWithoutMore = allWidth + categoryWidths.reduce((sum, width) => sum + width, 0) + GAP * categories.length;
-    if (widthWithoutMore <= availableWidth) {
-      setVisibleCount(categories.length);
-      return;
-    }
-
-    let best = 0;
-    let usedCategoryWidth = 0;
-    for (let count = 0; count <= categoryWidths.length; count++) {
-      const width = allWidth + moreWidth + usedCategoryWidth + GAP * (count + 1);
-      if (width <= availableWidth) {
-        best = count;
-        if (count < categoryWidths.length) {
-          usedCategoryWidth += categoryWidths[count];
-        }
-      } else {
-        break;
-      }
-    }
-    setVisibleCount(best);
-  }, [categories]);
+  }, [selectedCategory]);
 
   useEffect(() => {
-    measureVisibleCount();
-  }, [measureVisibleCount]);
-
-  useEffect(() => {
-    const row = rowRef.current;
-    if (!row) return;
-
-    const observer = new ResizeObserver(() => measureVisibleCount());
-    observer.observe(row);
-    window.addEventListener('resize', measureVisibleCount);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', measureVisibleCount);
-    };
-  }, [measureVisibleCount]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
-        setIsMoreOpen(false);
+    function handleClickOutside(event: Event) {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setIsFilterOpen(false);
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   function selectCategory(categorySlug: string | null) {
     onSelectCategory(categorySlug);
-    setIsMoreOpen(false);
+    setIsFilterOpen(false);
   }
 
   if (loading) {
     return (
-      <section style={{ padding: '12px 16px', width: '100%' }}>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ fontSize: '16px', color: colors.black, fontFamily: 'var(--font-inter), sans-serif' }}>
-            Loading categories...
-          </p>
-        </div>
+      <section className="section-pad">
+        <p className={styles.loading}>Loading categories...</p>
       </section>
     );
   }
 
   return (
-    <section style={{ padding: '12px 16px', width: '100%', position: 'relative' }}>
-      <div ref={rowRef} style={{
-        display: 'flex',
-        flexWrap: 'nowrap',
-        gap: `${GAP}px`,
-        alignItems: 'center',
-        position: 'relative',
-      }}>
-        <button
-          type="button"
-          aria-pressed={isAllProductsActive}
-          onClick={() => selectCategory(null)}
-          style={{
-            ...pillBaseStyle,
-            background: isAllProductsActive ? colors.gold : colors.emerald,
-            color: isAllProductsActive ? colors.black : colors.ivory,
-            borderColor: isAllProductsActive ? colors.gold : colors.emerald,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = isAllProductsActive ? colors.emerald : colors.gold;
-            e.currentTarget.style.color = isAllProductsActive ? colors.ivory : colors.black;
-            e.currentTarget.style.borderColor = isAllProductsActive ? colors.emerald : colors.gold;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = isAllProductsActive ? colors.gold : colors.emerald;
-            e.currentTarget.style.color = isAllProductsActive ? colors.black : colors.ivory;
-            e.currentTarget.style.borderColor = isAllProductsActive ? colors.gold : colors.emerald;
-          }}
-        >
-          All Products
-        </button>
-
-        {visibleCategories.map((category) => {
-          const isActive = selectedCategory === category.slug;
-
-          return (
-            <button
-              key={category.id}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => selectCategory(category.slug)}
-              style={{
-                ...pillBaseStyle,
-                background: isActive ? colors.emerald : colors.sand,
-                color: isActive ? colors.ivory : colors.black,
-                borderColor: isActive ? colors.emerald : 'transparent',
-                fontWeight: isActive ? 600 : 500,
-              }}
-              onMouseEnter={(e) => {
-                if (isActive) {
-                  e.currentTarget.style.background = colors.gold;
-                  e.currentTarget.style.color = colors.black;
-                  e.currentTarget.style.borderColor = colors.gold;
-                } else {
-                  e.currentTarget.style.background = colors.emerald;
-                  e.currentTarget.style.color = colors.ivory;
-                  e.currentTarget.style.borderColor = colors.emerald;
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = isActive ? colors.emerald : colors.sand;
-                e.currentTarget.style.color = isActive ? colors.ivory : colors.black;
-                e.currentTarget.style.borderColor = isActive ? colors.emerald : 'transparent';
-              }}
-            >
-              {category.name}
-            </button>
-          );
-        })}
-
-        {hiddenCategories.length > 0 && (
-          <div ref={moreRef} style={{ position: 'relative' }}>
-            <button
-              type="button"
-              aria-haspopup="true"
-              aria-expanded={isMoreOpen}
-              onClick={() => setIsMoreOpen((open) => !open)}
-              style={{
-                ...pillBaseStyle,
-                background: isMoreOpen ? colors.emerald : colors.sand,
-                color: isMoreOpen ? colors.ivory : colors.black,
-                borderColor: isMoreOpen ? colors.emerald : 'transparent',
-                gap: '4px',
-              }}
-              onMouseEnter={(e) => {
-                if (!isMoreOpen) {
-                  e.currentTarget.style.background = colors.emerald;
-                  e.currentTarget.style.color = colors.ivory;
-                  e.currentTarget.style.borderColor = colors.emerald;
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isMoreOpen) {
-                  e.currentTarget.style.background = colors.sand;
-                  e.currentTarget.style.color = colors.black;
-                  e.currentTarget.style.borderColor = 'transparent';
-                }
-              }}
-            >
-              More
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{
-                  transform: isMoreOpen ? 'rotate(180deg)' : 'none',
-                  transition: 'transform 0.2s ease',
-                }}
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </button>
-
-            {isMoreOpen && (
-              <div style={{
-                position: 'absolute',
-                top: 'calc(100% + 8px)',
-                right: 0,
-                minWidth: '180px',
-                background: colors.ivory,
-                border: `1px solid ${colors.sand}`,
-                borderRadius: '10px',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                padding: '8px',
-                zIndex: 100,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '4px',
-              }}>
-                {hiddenCategories.map((category) => {
-                  const isActive = selectedCategory === category.slug;
-
-                  return (
-                    <button
-                      key={category.id}
-                      type="button"
-                      aria-pressed={isActive}
-                      onClick={() => selectCategory(category.slug)}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        textAlign: 'left',
-                        padding: '8px 10px',
-                        borderRadius: '8px',
-                        border: '1px solid transparent',
-                        background: isActive ? colors.emerald : 'transparent',
-                        color: isActive ? colors.ivory : colors.black,
-                        fontSize: '12px',
-                        fontFamily: 'var(--font-inter), sans-serif',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.background = colors.sand;
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = isActive ? colors.emerald : 'transparent';
-                      }}
-                    >
-                      {category.name}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div
-        ref={measureRef}
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          left: '-9999px',
-          top: 0,
-          visibility: 'hidden',
-          pointerEvents: 'none',
-          display: 'flex',
-          flexWrap: 'nowrap',
-          gap: `${GAP}px`,
-          alignItems: 'center',
-        }}
-      >
-        <button type="button" tabIndex={-1} style={{ ...pillBaseStyle, background: colors.emerald, color: colors.ivory }}>
-          All Products
-        </button>
-        {categories.map((category) => (
+    <section className={`section-pad ${styles.section}`}>
+      <div className={styles.controlsRow}>
+        <div ref={scrollRef} className={`hide-scrollbar ${styles.scrollArea}`}>
           <button
-            key={category.id}
             type="button"
-            tabIndex={-1}
-            style={{ ...pillBaseStyle, background: colors.ivory, color: colors.emerald, fontWeight: 600 }}
+            aria-pressed={isAllProductsActive}
+            onClick={() => selectCategory(null)}
+            className={`${styles.pill} ${isAllProductsActive ? styles.allActive : styles.allIdle}`}
           >
-            {category.name}
+            All Products
           </button>
-        ))}
-        <button
-          type="button"
-          tabIndex={-1}
-          style={{ ...pillBaseStyle, background: colors.ivory, color: colors.emerald, gap: '4px' }}
-        >
-          More
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m6 9 6 6 6-6" />
-          </svg>
-        </button>
+
+          {categories.map((category) => {
+            const isActive = selectedCategory === category.slug;
+
+            return (
+              <button
+                key={category.id}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => selectCategory(category.slug)}
+                className={`${styles.pill} ${isActive ? styles.catActive : styles.catIdle}`}
+              >
+                {category.name}
+              </button>
+            );
+          })}
+        </div>
+
+        <div ref={filterRef} className={styles.moreWrap}>
+          <button
+            type="button"
+            aria-haspopup="true"
+            aria-expanded={isFilterOpen}
+            onClick={toggleFilter}
+            className={`${styles.pill} ${isFilterOpen ? styles.moreOpen : styles.moreIdle}`}
+          >
+            Filter
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`${styles.moreIcon} ${isFilterOpen ? styles.moreIconOpen : ''}`}
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
+
+          {isFilterOpen && (
+            <div className={styles.dropdown}>
+              <div className={styles.filterSection}>
+                <span className={styles.filterLabel}>Price</span>
+                <div className={styles.priceRow}>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Min"
+                    className={styles.filterInput}
+                    value={draft.minPrice ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setDraft({ ...draft, minPrice: v === '' ? null : Number(v) });
+                    }}
+                  />
+                  <span className={styles.priceDash}>–</span>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Max"
+                    className={styles.filterInput}
+                    value={draft.maxPrice ?? ''}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setDraft({ ...draft, maxPrice: v === '' ? null : Number(v) });
+                    }}
+                  />
+                </div>
+              </div>
+
+              <label className={styles.checkRow}>
+                <input
+                  type="checkbox"
+                  checked={draft.inStockOnly}
+                  onChange={(e) => setDraft({ ...draft, inStockOnly: e.target.checked })}
+                />
+                <span>In stock only</span>
+              </label>
+
+              <div className={styles.filterSection}>
+                <span className={styles.filterLabel}>Sort by</span>
+                <select
+                  className={styles.filterSelect}
+                  value={draft.sortBy}
+                  onChange={(e) => setDraft({ ...draft, sortBy: e.target.value as ProductFilters['sortBy'] })}
+                >
+                  <option value="default">Featured</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="name">Name: A to Z</option>
+                </select>
+              </div>
+
+              <div className={styles.applyRow}>
+                <button type="button" className={styles.applyButton} onClick={applyFilters}>
+                  Apply
+                </button>
+                <button type="button" className={styles.clearButton} onClick={clearFilters}>
+                  Clear all
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

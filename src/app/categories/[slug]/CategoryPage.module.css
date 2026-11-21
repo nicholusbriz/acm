@@ -1,0 +1,47 @@
+.loading {
+  font-size: 16px;
+  color: #171A18;
+  font-family: var(--font-inter), sans-serif;
+}
+
+.backLink {
+  font-size: 14px;
+  color: #C6A15B;
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: inline-block;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #123C32;
+  font-family: var(--font-poppins), sans-serif;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #171A18;
+  font-family: var(--font-inter), sans-serif;
+  margin-bottom: 32px;
+  opacity: 0.8;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  background: #FAF0E7;
+  border-radius: 12px;
+  border: 1px solid #D8C7A5;
+}
+
+.emptyState p {
+  font-size: 18px;
+  color: #171A18;
+  font-family: var(--font-inter), sans-serif;
+}

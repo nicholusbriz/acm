@@ -4,15 +4,9 @@ import { useEffect, useState } from 'react';
 import ProductCard, { type Product } from './ProductCard';
 import ProductScrollRow from './ProductScrollRow';
 import { getSearchQuery } from '@/lib/search';
+import { getProductFilters, type ProductFilters } from '@/lib/filters';
 import type { Category } from './Categories';
-
-const colors = {
-  emerald: '#123C32',
-  gold: '#C6A15B',
-  ivory: '#FAF0E7',
-  sand: '#D8C7A5',
-  black: '#171A18',
-};
+import styles from './Products.module.css';
 
 interface ProductsProps {
   selectedCategory?: string | null;
@@ -30,6 +24,18 @@ export default function Products({ selectedCategory = null, onSelectCategory }: 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<ProductFilters>(getProductFilters());
+
+  useEffect(() => {
+    const updateFilters = () => setFilters(getProductFilters());
+    updateFilters();
+    window.addEventListener('filters-updated', updateFilters);
+    window.addEventListener('storage', updateFilters);
+    return () => {
+      window.removeEventListener('filters-updated', updateFilters);
+      window.removeEventListener('storage', updateFilters);
+    };
+  }, []);
 
   useEffect(() => {
     const updateSearch = () => setSearchQuery(getSearchQuery());
@@ -65,8 +71,22 @@ export default function Products({ selectedCategory = null, onSelectCategory }: 
     fetchData();
   }, []);
 
+  const filteredCatalog = products
+    .filter((product) => {
+      if (filters.inStockOnly && (product.stock_quantity ?? 0) <= 0) return false;
+      if (filters.minPrice !== null && product.price < filters.minPrice) return false;
+      if (filters.maxPrice !== null && product.price > filters.maxPrice) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (filters.sortBy === 'price-asc') return a.price - b.price;
+      if (filters.sortBy === 'price-desc') return b.price - a.price;
+      if (filters.sortBy === 'name') return a.name.localeCompare(b.name);
+      return 0;
+    });
+
   const groupedProducts = new Map<string, Product[]>();
-  products.forEach((product) => {
+  filteredCatalog.forEach((product) => {
     const key = product.category?.slug ?? 'uncategorized';
     const existing = groupedProducts.get(key) ?? [];
     existing.push(product);
@@ -80,7 +100,7 @@ export default function Products({ selectedCategory = null, onSelectCategory }: 
         products: groupedProducts.get(category.slug) ?? [],
       }))
     : Array.from(
-        products.reduce((map, product) => {
+        filteredCatalog.reduce((map, product) => {
           const slug = product.category?.slug ?? 'uncategorized';
           const name = product.category?.name ?? 'Other';
           if (!map.has(slug)) map.set(slug, { slug, name, products: [] });
@@ -106,10 +126,8 @@ export default function Products({ selectedCategory = null, onSelectCategory }: 
 
   if (loading) {
     return (
-      <div style={{ padding: '12px 16px', width: '100%' }}>
-        <p style={{ fontSize: '16px', color: colors.black, fontFamily: 'var(--font-inter), sans-serif' }}>
-          Loading products...
-        </p>
+      <div className="section-pad">
+        <p className={styles.loading}>Loading products...</p>
       </div>
     );
   }
@@ -117,7 +135,7 @@ export default function Products({ selectedCategory = null, onSelectCategory }: 
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const isSearching = normalizedQuery.length > 0;
   const queryFiltered = isSearching
-    ? products.filter((product) =>
+    ? filteredCatalog.filter((product) =>
         [product.name, product.description, product.category?.name].some((field) =>
           field?.toLowerCase().includes(normalizedQuery)
         )
@@ -130,20 +148,10 @@ export default function Products({ selectedCategory = null, onSelectCategory }: 
 
   if (selectedCategory || isSearching) {
     return (
-      <div style={{ padding: '12px 16px', width: '100%' }}>
+      <div className="section-pad">
         {filteredProducts.length === 0 && (
-          <div style={{
-            textAlign: 'center',
-            padding: '60px 20px',
-            background: colors.ivory,
-            borderRadius: '12px',
-            border: `1px solid ${colors.sand}`,
-          }}>
-            <p style={{
-              fontSize: '18px',
-              color: colors.black,
-              fontFamily: 'var(--font-inter), sans-serif',
-            }}>
+          <div className={styles.emptyState}>
+            <p>
               {isSearching ? `No products found for "${searchQuery.trim()}".` : 'No products found in this category.'}
             </p>
           </div>
@@ -161,22 +169,10 @@ export default function Products({ selectedCategory = null, onSelectCategory }: 
   }
 
   return (
-    <div style={{ padding: '12px 16px', width: '100%' }}>
+    <div className="section-pad">
       {visibleRows.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '60px 20px',
-          background: colors.ivory,
-          borderRadius: '12px',
-          border: `1px solid ${colors.sand}`,
-        }}>
-          <p style={{
-            fontSize: '18px',
-            color: colors.black,
-            fontFamily: 'var(--font-inter), sans-serif',
-          }}>
-            No products found in this category.
-          </p>
+        <div className={styles.emptyState}>
+          <p>No products found in this category.</p>
         </div>
       )}
 

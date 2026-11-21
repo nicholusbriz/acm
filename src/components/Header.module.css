@@ -5,7 +5,8 @@
 }
 
 .header {
-  background: #123C32;
+  background: linear-gradient(180deg, #16453a 0%, #123C32 100%);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 .headerContainer {
@@ -19,6 +20,10 @@
 }
 
 @media (max-width: 768px) {
+  .header {
+    box-shadow: none;
+  }
+
   .headerContainer {
     padding: 0 16px;
     height: 64px;
@@ -60,10 +65,20 @@
   transition: all 0.2s ease;
 }
 
+.searchInput:focus {
+  border-color: #C6A15B;
+  box-shadow: 0 0 0 3px rgba(198, 161, 91, 0.2);
+}
+
 @media (max-width: 768px) {
   .searchInput {
+    border: none;
     padding: 12px 110px 12px 14px;
     font-size: 14px;
+  }
+
+  .searchInput:focus {
+    box-shadow: none;
   }
 }
 
@@ -253,6 +268,11 @@
   transition: all 0.2s ease;
 }
 
+.iconButton:hover {
+  background: rgba(198, 161, 91, 0.15);
+  color: #C6A15B;
+}
+
 @media (max-width: 768px) {
   .iconButton {
     width: 38px;
@@ -279,6 +299,21 @@
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
+}
+
+.accountWrap {
+  position: relative;
+}
+
+.accountLabel {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-inter), sans-serif;
+}
+
+.accountButton:hover {
+  background: rgba(198, 161, 91, 0.15);
+  color: #C6A15B;
 }
 
 @media (max-width: 768px) {

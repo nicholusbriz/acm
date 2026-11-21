@@ -1,0 +1,58 @@
+.page {
+  padding: 40px;
+  font-family: sans-serif;
+  max-width: 600px;
+}
+
+.title {
+  color: #123C32;
+}
+
+.card {
+  margin-top: 20px;
+  padding: 20px;
+  background: #F5F0E8;
+  border-radius: 8px;
+  border: 1px solid #D8C7A5;
+}
+
+.cardLabel {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.pre {
+  white-space: pre-wrap;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}
+
+.envCard {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f0f0f0;
+  border-radius: 8px;
+}
+
+.successCard {
+  margin-top: 20px;
+  padding: 15px;
+  background: #e8f5e9;
+  border-radius: 8px;
+  border: 1px solid #4caf50;
+}
+
+.successTitle {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+.successText {
+  font-size: 14px;
+  margin-top: 8px;
+}

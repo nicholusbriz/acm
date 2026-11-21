@@ -1,5 +1,5 @@
 .topBar {
-  background: #123C32;
+  background: linear-gradient(90deg, #0d2b23 0%, #123C32 50%, #0d2b23 100%);
   padding: 6px 16px;
   display: flex;
   flex-direction: row;

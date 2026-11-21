@@ -1,0 +1,19 @@
+.loading {
+  font-size: 16px;
+  color: #171A18;
+  font-family: var(--font-inter), sans-serif;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  background: #FAF0E7;
+  border-radius: 12px;
+  border: 1px solid #D8C7A5;
+}
+
+.emptyState p {
+  font-size: 18px;
+  color: #171A18;
+  font-family: var(--font-inter), sans-serif;
+}

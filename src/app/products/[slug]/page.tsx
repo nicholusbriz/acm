@@ -10,10 +10,8 @@ interface ProductPageProps {
 export default function ProductPage({ params }: ProductPageProps) {
   return (
     <Suspense fallback={
-      <div style={{ padding: '40px 16px', width: '100%' }}>
-        <p style={{ fontSize: '16px', color: '#171A18', fontFamily: 'var(--font-inter), sans-serif' }}>
-          Loading product...
-        </p>
+      <div className="page-pad">
+        <p className="page-loading">Loading product...</p>
       </div>
     }>
       <ProductDetailLoader paramsPromise={params} />

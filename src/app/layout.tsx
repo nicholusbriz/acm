@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import TopBar from "@/components/TopBar";
@@ -27,7 +28,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${poppins.variable} ${inter.variable}`}>
       <body>
         <TopBar />
-        <Header />
+        <Suspense fallback={null}>
+          <Header />
+        </Suspense>
         {children}
         <Footer />
       </body>

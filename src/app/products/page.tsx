@@ -3,14 +3,7 @@
 import { useEffect, useState } from 'react';
 import ProductGrid from '@/components/ProductGrid';
 import type { Product } from '@/components/ProductCard';
-
-const colors = {
-  emerald: '#123C32',
-  gold: '#C6A15B',
-  ivory: '#FAF0E7',
-  sand: '#D8C7A5',
-  black: '#171A18',
-};
+import styles from './ProductsPage.module.css';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -34,34 +27,16 @@ export default function ProductsPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: '40px 16px', width: '100%' }}>
-        <p style={{ fontSize: '16px', color: colors.black, fontFamily: 'var(--font-inter), sans-serif' }}>
-          Loading products...
-        </p>
+      <div className="page-pad">
+        <p className={styles.loading}>Loading products...</p>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '40px 16px', width: '100%' }}>
-      <h1 style={{
-        fontSize: '36px',
-        fontWeight: 700,
-        color: colors.emerald,
-        fontFamily: 'var(--font-poppins), sans-serif',
-        marginBottom: '8px',
-      }}>
-        All Products
-      </h1>
-      <p style={{
-        fontSize: '16px',
-        color: colors.black,
-        fontFamily: 'var(--font-inter), sans-serif',
-        marginBottom: '32px',
-        opacity: 0.8,
-      }}>
-        Browse our complete collection
-      </p>
+    <div className="page-pad">
+      <h1 className={styles.title}>All Products</h1>
+      <p className={styles.subtitle}>Browse our complete collection</p>
 
       <ProductGrid products={products} />
     </div>
