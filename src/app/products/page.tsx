@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import ProductGrid from '@/components/ProductGrid';
+import type { Product } from '@/components/ProductCard';
 
 const colors = {
   emerald: '#123C32',
@@ -10,20 +11,6 @@ const colors = {
   sand: '#D8C7A5',
   black: '#171A18',
 };
-
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  price: number;
-  compare_at_price?: number;
-  category?: {
-    name: string;
-    slug: string;
-  };
-  images: string[];
-}
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -47,7 +34,7 @@ export default function ProductsPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: '40px 32px', maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ padding: '40px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
         <p style={{ fontSize: '16px', color: colors.black, fontFamily: 'var(--font-inter), sans-serif' }}>
           Loading products...
         </p>
@@ -56,7 +43,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <div style={{ padding: '40px 32px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '40px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
       <h1 style={{
         fontSize: '36px',
         fontWeight: 700,
@@ -76,116 +63,7 @@ export default function ProductsPage() {
         Browse our complete collection
       </p>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-        gap: '24px',
-      }}>
-        {products.map((product) => (
-          <Link
-            key={product.id}
-            href={`/products/${product.slug}`}
-            style={{ textDecoration: 'none' }}
-          >
-            <div style={{
-              background: colors.ivory,
-              borderRadius: '12px',
-              overflow: 'hidden',
-              border: `1px solid ${colors.sand}`,
-              transition: 'all 0.3s ease',
-              cursor: 'pointer',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-            >
-              {/* Product Image */}
-              <div style={{
-                width: '100%',
-                height: '200px',
-                background: `${colors.emerald}08`,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '12px',
-              }}>
-                {product.images && product.images[0] ? (
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  <>
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke={colors.sand} strokeWidth="1.5">
-                      <rect x="3" y="3" width="18" height="18" rx="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                    </svg>
-                    <span style={{
-                      fontSize: '12px',
-                      color: colors.sand,
-                      fontFamily: 'var(--font-inter), sans-serif',
-                    }}>
-                      No Image
-                    </span>
-                  </>
-                )}
-              </div>
-
-              {/* Product Info */}
-              <div style={{ padding: '16px' }}>
-                {product.category && (
-                  <p style={{
-                    fontSize: '12px',
-                    color: colors.gold,
-                    fontFamily: 'var(--font-inter), sans-serif',
-                    fontWeight: 600,
-                    marginBottom: '4px',
-                  }}>
-                    {product.category.name}
-                  </p>
-                )}
-                <h3 style={{
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  color: colors.emerald,
-                  fontFamily: 'var(--font-poppins), sans-serif',
-                  marginBottom: '8px',
-                }}>
-                  {product.name}
-                </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{
-                    fontSize: '18px',
-                    fontWeight: 700,
-                    color: colors.emerald,
-                    fontFamily: 'var(--font-inter), sans-serif',
-                  }}>
-                    ${product.price.toFixed(2)}
-                  </span>
-                  {product.compare_at_price && (
-                    <span style={{
-                      fontSize: '14px',
-                      color: colors.sand,
-                      fontFamily: 'var(--font-inter), sans-serif',
-                      textDecoration: 'line-through',
-                    }}>
-                      ${product.compare_at_price.toFixed(2)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <ProductGrid products={products} />
     </div>
   );
 }

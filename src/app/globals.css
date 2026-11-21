@@ -50,3 +50,28 @@ a {
     color-scheme: dark;
   }
 }
+
+.category-scroll {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding-bottom: 4px;
+}
+
+@media (max-width: 768px) {
+  .category-scroll {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,87 @@
+.topBar {
+  background: #123C32;
+  padding: 6px 32px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-align: center;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .topBar {
+    padding: 5px 12px;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 400px) {
+  .topBar {
+    padding: 4px 8px;
+    gap: 6px;
+  }
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #C6A15B;
+  font-family: var(--font-poppins), sans-serif;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 400px) {
+  .title {
+    font-size: 10px;
+  }
+}
+
+.subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: #FAF0E7;
+  font-family: var(--font-poppins), sans-serif;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+  .subtitle {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 400px) {
+  .subtitle {
+    font-size: 9px;
+  }
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(198, 161, 91, 0.25);
+}
+
+@media (max-width: 768px) {
+  .divider {
+    height: 12px;
+  }
+}
+
+@media (max-width: 400px) {
+  .divider {
+    height: 10px;
+  }
+}

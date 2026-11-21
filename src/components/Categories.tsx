@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const colors = {
   emerald: '#123C32',
@@ -11,7 +10,7 @@ const colors = {
   black: '#171A18',
 };
 
-interface Category {
+export interface Category {
   id: string;
   name: string;
   slug: string;
@@ -21,16 +20,46 @@ interface Category {
   updated_at: string;
 }
 
-export default function Categories() {
+interface CategoriesProps {
+  selectedCategory: string | null;
+  onSelectCategory: (categorySlug: string | null) => void;
+}
+
+const GAP = 6;
+const SAFETY_MARGIN = 8;
+
+const pillBaseStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: '6px 12px',
+  borderRadius: '999px',
+  fontSize: '12px',
+  fontFamily: 'var(--font-inter), sans-serif',
+  transition: 'all 0.2s ease',
+  cursor: 'pointer',
+  border: '1px solid transparent',
+  whiteSpace: 'nowrap',
+  flexShrink: 0,
+} as const;
+
+export default function Categories({ selectedCategory, onSelectCategory }: CategoriesProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(0);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
+  const isAllProductsActive = selectedCategory === null;
+  const visibleCategories = categories.slice(0, visibleCount);
+  const hiddenCategories = categories.slice(visibleCount);
 
   useEffect(() => {
     async function fetchCategories() {
       try {
         const response = await fetch('/api/categories');
         const data = await response.json();
-        setCategories(data);
+        setCategories(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Error fetching categories:', error);
       } finally {
@@ -41,9 +70,83 @@ export default function Categories() {
     fetchCategories();
   }, []);
 
+  const measureVisibleCount = useCallback(() => {
+    const row = rowRef.current;
+    const measure = measureRef.current;
+    if (!row || !measure || categories.length === 0) {
+      setVisibleCount(0);
+      return;
+    }
+
+    const children = Array.from(measure.children) as HTMLElement[];
+    if (children.length < categories.length + 2) {
+      setVisibleCount(0);
+      return;
+    }
+
+    const allWidth = children[0].offsetWidth;
+    const moreWidth = children[children.length - 1].offsetWidth;
+    const categoryWidths = children.slice(1, -1).map((child) => child.offsetWidth);
+    const availableWidth = row.clientWidth - SAFETY_MARGIN;
+
+    const widthWithoutMore = allWidth + categoryWidths.reduce((sum, width) => sum + width, 0) + GAP * categories.length;
+    if (widthWithoutMore <= availableWidth) {
+      setVisibleCount(categories.length);
+      return;
+    }
+
+    let best = 0;
+    let usedCategoryWidth = 0;
+    for (let count = 0; count <= categoryWidths.length; count++) {
+      const width = allWidth + moreWidth + usedCategoryWidth + GAP * (count + 1);
+      if (width <= availableWidth) {
+        best = count;
+        if (count < categoryWidths.length) {
+          usedCategoryWidth += categoryWidths[count];
+        }
+      } else {
+        break;
+      }
+    }
+    setVisibleCount(best);
+  }, [categories]);
+
+  useEffect(() => {
+    measureVisibleCount();
+  }, [measureVisibleCount]);
+
+  useEffect(() => {
+    const row = rowRef.current;
+    if (!row) return;
+
+    const observer = new ResizeObserver(() => measureVisibleCount());
+    observer.observe(row);
+    window.addEventListener('resize', measureVisibleCount);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measureVisibleCount);
+    };
+  }, [measureVisibleCount]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(event.target as Node)) {
+        setIsMoreOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  function selectCategory(categorySlug: string | null) {
+    onSelectCategory(categorySlug);
+    setIsMoreOpen(false);
+  }
+
   if (loading) {
     return (
-      <section style={{ padding: '40px 32px', maxWidth: '1400px', margin: '0 auto' }}>
+      <section style={{ padding: '12px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontSize: '16px', color: colors.black, fontFamily: 'var(--font-inter), sans-serif' }}>
             Loading categories...
@@ -54,89 +157,222 @@ export default function Categories() {
   }
 
   return (
-    <section style={{ padding: '40px 32px', maxWidth: '1400px', margin: '0 auto' }}>
-      <h2 style={{
-        fontSize: '28px',
-        fontWeight: 700,
-        color: colors.emerald,
-        fontFamily: 'var(--font-poppins), sans-serif',
-        marginBottom: '24px',
-      }}>
-        Categories
-      </h2>
-
-      <div style={{
+    <section style={{ padding: '12px 32px', width: '100%', maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
+      <div ref={rowRef} style={{
         display: 'flex',
-        flexWrap: 'wrap',
-        gap: '12px',
+        flexWrap: 'nowrap',
+        gap: `${GAP}px`,
+        alignItems: 'center',
+        position: 'relative',
       }}>
-        <Link
-          href="/products"
+        <button
+          type="button"
+          aria-pressed={isAllProductsActive}
+          onClick={() => selectCategory(null)}
           style={{
-            textDecoration: 'none',
+            ...pillBaseStyle,
+            background: isAllProductsActive ? colors.gold : colors.emerald,
+            color: isAllProductsActive ? colors.black : colors.ivory,
+            borderColor: isAllProductsActive ? colors.gold : colors.emerald,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = isAllProductsActive ? colors.emerald : colors.gold;
+            e.currentTarget.style.color = isAllProductsActive ? colors.ivory : colors.black;
+            e.currentTarget.style.borderColor = isAllProductsActive ? colors.emerald : colors.gold;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = isAllProductsActive ? colors.gold : colors.emerald;
+            e.currentTarget.style.color = isAllProductsActive ? colors.black : colors.ivory;
+            e.currentTarget.style.borderColor = isAllProductsActive ? colors.gold : colors.emerald;
           }}
         >
-          <span style={{
-            display: 'inline-block',
-            padding: '10px 20px',
-            background: colors.emerald,
-            color: colors.ivory,
-            borderRadius: '20px',
-            fontSize: '14px',
-            fontWeight: 600,
-            fontFamily: 'var(--font-inter), sans-serif',
-            transition: 'all 0.2s ease',
-            cursor: 'pointer',
-          }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = colors.gold;
-              e.currentTarget.style.color = colors.black;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = colors.emerald;
-              e.currentTarget.style.color = colors.ivory;
-            }}
-          >
-            All Products
-          </span>
-        </Link>
+          All Products
+        </button>
 
-        {categories.map((category) => (
-          <Link
-            key={category.id}
-            href={`/categories/${category.slug}`}
-            style={{
-              textDecoration: 'none',
-            }}
-          >
-            <span style={{
-              display: 'inline-block',
-              padding: '10px 20px',
-              background: colors.ivory,
-              color: colors.emerald,
-              borderRadius: '20px',
-              fontSize: '14px',
-              fontWeight: 500,
-              fontFamily: 'var(--font-inter), sans-serif',
-              border: `1px solid ${colors.sand}`,
-              transition: 'all 0.2s ease',
-              cursor: 'pointer',
-            }}
+        {visibleCategories.map((category) => {
+          const isActive = selectedCategory === category.slug;
+
+          return (
+            <button
+              key={category.id}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => selectCategory(category.slug)}
+              style={{
+                ...pillBaseStyle,
+                background: isActive ? colors.emerald : colors.ivory,
+                color: isActive ? colors.ivory : colors.emerald,
+                borderColor: isActive ? colors.emerald : colors.sand,
+                fontWeight: isActive ? 600 : 500,
+              }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = colors.emerald;
-                e.currentTarget.style.color = colors.ivory;
-                e.currentTarget.style.borderColor = colors.emerald;
+                if (isActive) {
+                  e.currentTarget.style.background = colors.gold;
+                  e.currentTarget.style.color = colors.black;
+                  e.currentTarget.style.borderColor = colors.gold;
+                } else {
+                  e.currentTarget.style.background = colors.emerald;
+                  e.currentTarget.style.color = colors.ivory;
+                  e.currentTarget.style.borderColor = colors.emerald;
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = colors.ivory;
-                e.currentTarget.style.color = colors.emerald;
-                e.currentTarget.style.borderColor = colors.sand;
+                e.currentTarget.style.background = isActive ? colors.emerald : colors.ivory;
+                e.currentTarget.style.color = isActive ? colors.ivory : colors.emerald;
+                e.currentTarget.style.borderColor = isActive ? colors.emerald : colors.sand;
               }}
             >
               {category.name}
-            </span>
-          </Link>
+            </button>
+          );
+        })}
+
+        {hiddenCategories.length > 0 && (
+          <div ref={moreRef} style={{ position: 'relative' }}>
+            <button
+              type="button"
+              aria-haspopup="true"
+              aria-expanded={isMoreOpen}
+              onClick={() => setIsMoreOpen((open) => !open)}
+              style={{
+                ...pillBaseStyle,
+                background: isMoreOpen ? colors.emerald : colors.ivory,
+                color: isMoreOpen ? colors.ivory : colors.emerald,
+                borderColor: isMoreOpen ? colors.emerald : colors.sand,
+                gap: '4px',
+              }}
+              onMouseEnter={(e) => {
+                if (!isMoreOpen) {
+                  e.currentTarget.style.background = colors.emerald;
+                  e.currentTarget.style.color = colors.ivory;
+                  e.currentTarget.style.borderColor = colors.emerald;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isMoreOpen) {
+                  e.currentTarget.style.background = colors.ivory;
+                  e.currentTarget.style.color = colors.emerald;
+                  e.currentTarget.style.borderColor = colors.sand;
+                }
+              }}
+            >
+              More
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  transform: isMoreOpen ? 'rotate(180deg)' : 'none',
+                  transition: 'transform 0.2s ease',
+                }}
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            {isMoreOpen && (
+              <div style={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                right: 0,
+                minWidth: '180px',
+                background: colors.ivory,
+                border: `1px solid ${colors.sand}`,
+                borderRadius: '10px',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                padding: '8px',
+                zIndex: 100,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px',
+              }}>
+                {hiddenCategories.map((category) => {
+                  const isActive = selectedCategory === category.slug;
+
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      aria-pressed={isActive}
+                      onClick={() => selectCategory(category.slug)}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: '8px 10px',
+                        borderRadius: '8px',
+                        border: '1px solid transparent',
+                        background: isActive ? colors.emerald : 'transparent',
+                        color: isActive ? colors.ivory : colors.black,
+                        fontSize: '12px',
+                        fontFamily: 'var(--font-inter), sans-serif',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = colors.sand;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = isActive ? colors.emerald : 'transparent';
+                      }}
+                    >
+                      {category.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div
+        ref={measureRef}
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          left: '-9999px',
+          top: 0,
+          visibility: 'hidden',
+          pointerEvents: 'none',
+          display: 'flex',
+          flexWrap: 'nowrap',
+          gap: `${GAP}px`,
+          alignItems: 'center',
+        }}
+      >
+        <button type="button" tabIndex={-1} style={{ ...pillBaseStyle, background: colors.emerald, color: colors.ivory }}>
+          All Products
+        </button>
+        {categories.map((category) => (
+          <button
+            key={category.id}
+            type="button"
+            tabIndex={-1}
+            style={{ ...pillBaseStyle, background: colors.ivory, color: colors.emerald, fontWeight: 600 }}
+          >
+            {category.name}
+          </button>
         ))}
+        <button
+          type="button"
+          tabIndex={-1}
+          style={{ ...pillBaseStyle, background: colors.ivory, color: colors.emerald, gap: '4px' }}
+        >
+          More
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
       </div>
     </section>
   );

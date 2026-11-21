@@ -1,11 +1,5 @@
-import Categories from "@/components/Categories";
-import Products from "@/components/Products";
+import HomeCatalog from "@/components/HomeCatalog";
 
 export default function Home() {
-  return (
-    <div>
-      <Categories />
-      <Products />
-    </div>
-  );
+  return <HomeCatalog />;
 }

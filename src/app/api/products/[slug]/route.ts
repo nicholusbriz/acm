@@ -3,10 +3,11 @@ import { getProductsByCategory } from '@/lib/database';
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const products = await getProductsByCategory(params.slug);
+    const { slug } = await params;
+    const products = await getProductsByCategory(slug);
     return NextResponse.json(products);
   } catch (error) {
     console.error('Error fetching products by category:', error);
