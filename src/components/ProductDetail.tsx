@@ -40,7 +40,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
           display: 'inline-block',
           cursor: 'pointer',
         }}>
-          ← Back to Home
+          ← Back to Products
         </span>
       </Link>
 
@@ -261,7 +261,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
             e.currentTarget.style.color = colors.emerald;
           }}
         >
-          ← Back to Home
+          ← Back to Products
         </Link>
       </div>
     </div>
