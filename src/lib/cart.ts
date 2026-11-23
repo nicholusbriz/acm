@@ -25,6 +25,16 @@ export function getCartCount(): number {
   return getCart().reduce((sum, item) => sum + item.quantity, 0);
 }
 
+export function getCartTotal(): number {
+  return getCart().reduce((sum, item) => sum + item.price * item.quantity, 0);
+}
+
+export function removeFromCart(id: string) {
+  const cart = getCart().filter((item) => item.id !== id);
+  window.localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  window.dispatchEvent(new Event(CART_EVENT));
+}
+
 export function addToCart(product: {
   id: string;
   name: string;

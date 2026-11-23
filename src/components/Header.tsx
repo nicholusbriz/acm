@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getCartCount } from '@/lib/cart';
 import { setSearchQuery as updateSearchQuery } from '@/lib/search';
 import CategoryFilter from './CategoryFilter';
+import CartDrawer from './CartDrawer';
 import styles from './Header.module.css';
 
 export default function Header() {
@@ -17,8 +18,11 @@ export default function Header() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [cartCount, setCartCount] = useState(0);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
   const accountRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -59,8 +63,26 @@ export default function Header() {
     };
   }, []);
 
+  useEffect(() => {
+    const el = stickyRef.current;
+    if (!el) return;
+    const measure = () => setHeaderHeight(el.offsetHeight);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
+
+  useEffect(() => {
+    setIsCartOpen(false);
+  }, [pathname]);
+
   return (
-    <div className={styles.stickyHeader}>
+    <div className={styles.stickyHeader} ref={stickyRef}>
       <header className={styles.header}>
         <div className={styles.headerContainer}>
           <Link href="/" className={styles.logoContainer} onClick={() => window.scrollTo({ top: 0 })}>
@@ -164,7 +186,11 @@ export default function Header() {
             </div>
 
             {/* Cart */}
-            <button className={styles.iconButton} aria-label="Cart">
+            <button
+              className={styles.iconButton}
+              onClick={() => setIsCartOpen(true)}
+              aria-label="Cart"
+            >
               <svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="9" cy="21" r="1" />
                 <circle cx="20" cy="21" r="1" />
@@ -243,6 +269,12 @@ export default function Header() {
           ))}
         </div>
       )}
+
+      <CartDrawer
+        open={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        topOffset={headerHeight}
+      />
     </div>
   );
 }

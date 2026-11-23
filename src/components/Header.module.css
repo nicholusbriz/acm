@@ -2,6 +2,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
+  border-bottom: 2px solid #C6A15B;
 }
 
 .header {
@@ -397,7 +398,7 @@
 }
 
 .mobileSearchContainer {
-  padding: 6px 16px;
+  padding: 0 16px 8px;
   background: #123C32;
   display: flex;
   align-items: center;
